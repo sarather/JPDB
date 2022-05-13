@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/ClientSide/html.html to edit this template
+-->
+<html>
+    <head>
+        <title>Delete</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div>
+            <form> 
+                <div>
+
+                    <div class="form-group">
+                        <span><label for="stuId">Student ID:</label> <label id="stuIdMsg">
+                            </label></span>
+                        <input type="text" class="form-control" name="stuId" id="stuId"
+                               placeholder="Enter Student ID" required>
+                    </div>
+                    <input type="button" class="btn btn-primary" id="delete" value="Delete"
+                           onclick="deleteStudent();">
+                </div>
+            </form>
+        </div>
+        <script>
+            function validateAndGetFormData() {
+                var stuIdVar = $("#stuId").val();
+                if (stuIdVar === "") {
+                    alert("Student ID Required Value");
+                    $("#stuId").focus();
+                    return "";
+                }
+                var jsonStrObj = {
+                    stuId: stuIdVar
+                };
+                return JSON.stringify(jsonStrObj);
+
+            }
+            function createREMOVERecordRequest(token, dbName, relName, reqId) {
+                var req = "{\n"
+                        + "\"token\" : \""
+                        + token
+                        + "\","
+                        + "\"dbName\": \""
+                        + dbName
+                        + "\",\n" + "\"cmd\" : \"REMOVE\",\n"
+                        + "\"rel\" : \""
+                        + relName
+                        + "\",\n" + "\"record\":"
+                        + reqId
+                        + "\n"
+                        + "}";
+                return req;
+            }
+            function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+                var url = dbBaseUrl + apiEndPointUrl;
+                var jsonObj;
+                $.post(url, reqString, function (result) {
+                    jsonObj = JSON.parse(result);
+                }).fail(function (result) {
+                    var dataJsonObj = result.responseText;
+                    jsonObj = JSON.parse(dataJsonObj);
+                });
+                return jsonObj;
+            }
+            function resetForm() {
+                $("#stuId").val("");
+            }
+           function deleteStudent(){
+                  var jsonStr = validateAndGetFormData();
+                if (jsonStr === "") {
+                    return;
+                }
+                var recordid = document.getElementById("stuId").value;
+                var putReqStr = createREMOVERecordRequest("90939040|-31949282677957697|90940583",
+                         "StudentRegistration", "STU-DET",recordid);
+                alert(putReqStr);
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommand(putReqStr, "http://api.login2explore.com:5577", "/api/iml");
+                jQuery.ajaxSetup({async: true});
+
+                alert(JSON.stringify(resultObj));
+
+                resetForm();
+            }
+           
+        </script>
+    </body>
+</html>

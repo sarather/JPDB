@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this tstulate file, choose Tools | Tstulates
+and open the tstulate in the editor.
+-->
+<html lang="en">
+    <head>
+        <title>Hostel Management</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://login2explore.com/jpdb/resources/js/0.0.3/jpdb-commons.js"></script>
+        
+    </head>
+    <body>
+        <div class="container">
+            <h2>Student Hostel Registration Form</h2>
+            <form id="stuForm" method="post">
+                <div class="form-group">
+                    <span><label for="stuId">Student ID:</label> <label id="stuIdMsg">
+                        </label></span>
+                    <input type="text" class="form-control" name="stuId" id="stuId"
+                           placeholder="Enter Student ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="stuName">Student Name:</label>
+                    <input type="text" class="form-control" id="stuName"
+                           placeholder="Enter Student Name" name="stuName">
+                </div>
+                <div class="form-group">
+                    <label for="stuFatherName">Student Father's Name:</label>
+                    <input type="text" class="form-control" id="stuFatherName"
+                           placeholder="Enter Student Father's Name" name="stuFatherName">
+                </div>
+                <div class="form-group">
+                    <span><label for="stuclass">Student Course: </span>
+                    <input type="text" class="form-control" name="stuclass" id="stuclass"
+                           placeholder="Enter Student class" required>
+                </div>
+                <div class="form-group">
+                    <label for="stuEmail">Email:</label>
+                    <input type="email" class="form-control" id="stuEmail"
+                           placeholder="Enter Student Email" name="stuEmail">
+                </div>
+                <div class="form-group">
+                    <span><label for="stuFee">Fees Paid:</span>
+                    <input type="text" class="form-control" name="stuFee" id="stuFee"
+                           placeholder="Enter Fees Paid" required>
+                </div>
+                <input type="button" class="btn btn-primary" id="stuSave" value="Save"
+                       onclick="saveStudent();">
+                <input type="button" class="btn btn-primary" id="stuUpdate" value="Update"
+                       onclick="updateStudent();">
+            
+            </form>
+        </div>
+        <script>
+            function validateAndGetFormData() {
+                var stuIdVar = $("#stuId").val();
+                if (stuIdVar === "") {
+                    alert("Student ID Required Value");
+                    $("#stuId").focus();
+                    return "";
+                }
+                
+                var stuNameVar = $("#stuName").val();
+                if (stuNameVar === "") {
+                    alert("Student Name is Required Value");
+                    $("#stuName").focus();
+                    return "";
+                }
+                var stuFatherNameVar = $("#stuFatherName").val();
+                if (stuFatherNameVar === "") {
+                    alert("Student Father's Name is Required Value");
+                    $("#stuFatherName").focus();
+                    return "";
+                }
+                var stuClassVar = $("#stuclass").val();
+                if (stuClassVar === "") {
+                    alert("Student class is Required Value");
+                    $("#stuclass").focus();
+                    return "";
+                }
+                var stuEmailVar = $("#stuEmail").val();
+                if (stuEmailVar === "") {
+                    alert("Student Email is Required Value");
+                    $("#stuEmail").focus();
+                    return "";
+                }
+                
+                var stuFeeVar = $("#stuFee").val();
+                if (stuFeeVar === "") {
+                    alert("Hostel Fees Required");
+                    $("#stuFee").focus();
+                    return "";
+                }
+                var jsonStrObj = {
+                    stuId: stuIdVar,
+                    stuName: stuNameVar,
+                    stuFatherName: stuFatherNameVar,
+                    stuclass: stuClassVar,
+                    stuEmail: stuEmailVar,
+                    
+                    stuFee: stuFeeVar
+                };
+                return JSON.stringify(jsonStrObj);
+            }
+            // This method is used to create PUT Json request.
+            function createPUTRequest(connToken, jsonObj, dbName, relName) {
+                var putRequest = "{\n"
+                        + "\"token\" : \""
+                        + connToken
+                        + "\","
+                        + "\"dbName\": \""
+                        + dbName
+                        + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                        + "\"rel\" : \""
+                        + relName + "\","
+                        + "\"jsonStr\": \n"
+                        + jsonObj
+                        + "\n"
+                        + "}";
+                return putRequest;
+            }
+            function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+                var url = dbBaseUrl + apiEndPointUrl;
+                var jsonObj;
+                $.post(url, reqString, function (result) {
+                    jsonObj = JSON.parse(result);
+                }).fail(function (result) {
+                    var dataJsonObj = result.responseText;
+                    jsonObj = JSON.parse(dataJsonObj);
+                });
+                return jsonObj;
+            }
+            function resetForm() {
+                $("#stuId").val(""),
+                $("#stuName").val("");
+                $("#stuEmail").val("");
+                $("#stuclass").val(""),
+                $("#stuFatherName").val(""),
+                 $("#stuFee").val(""),
+        
+                    $("#stuId").focus();
+                
+            }
+            function createUPDATERecordRequest(token, jsonObj, dbName, relName, reqId) {
+    var req = "{\n"
+            + "\"token\" : \""
+            + token
+            + "\","
+            + "\"dbName\": \""
+            + dbName
+            + "\",\n" + "\"cmd\" : \"UPDATE\",\n"
+            + "\"rel\" : \""
+            + relName
+            + "\",\n"
+            + "\"jsonStr\":{ \""
+            + reqId
+            + "\":\n"
+            + jsonObj
+            + "\n"
+            + "}}";
+    return req;
+}
+
+            function saveStudent() {
+                var jsonStr = validateAndGetFormData();
+                if (jsonStr === "") {
+                    return;
+                }
+                var putReqStr = createPUTRequest("90939040|-31949282677957697|90940583",
+                        jsonStr, "StudentRegistration", "STU-DET");
+                alert(putReqStr);
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommand(putReqStr, "http://api.login2explore.com:5577", "/api/iml");
+                jQuery.ajaxSetup({async: true});
+
+                alert(JSON.stringify(resultObj));
+
+                resetForm();
+            }
+           function updateStudent(){
+                var jsonStr = validateAndGetFormData();
+                if (jsonStr === "") {
+                    return;
+                }
+                var recordid = document.getElementById("stuId").value;
+                var putReqStr = createUPDATERecordRequest("90939040|-31949282677957697|90940583",
+                        jsonStr, "StudentRegistration", "STU-DET",recordid) ;
+                alert(putReqStr);
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommand(putReqStr, "http://api.login2explore.com:5577", "/api/iml");
+                jQuery.ajaxSetup({async: true});
+
+                alert(JSON.stringify(resultObj));
+
+                resetForm();
+            }
+            
+        </script>
+    </body>
+</html>
